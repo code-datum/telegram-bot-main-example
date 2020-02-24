@@ -1,5 +1,8 @@
 # telegram-bot-main-example
 the tutor get from https://www.freecodecamp.org/news/learn-to-build-your-first-bot-in-telegram-with-python-4c99526765e4/
+
+Url adress bot: https://telegram.me/RandomDogExamBot
+
 ## Create a new bot
 
 Go to the Botfather [https://telegram.me/BotFather] and send new command '/newbot' command.
