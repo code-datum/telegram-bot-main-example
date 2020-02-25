@@ -1,9 +1,20 @@
+# the task https://docs.google.com/document/d/1_UNymiQ0otjI9RBeW7-pwDdgQUW_OveUlcet01zzIsM/edit?usp=sharing
 import logging
 import os
 import requests
 from telegram import (ReplyKeyboardMarkup, ReplyKeyboardRemove)
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
                           ConversationHandler)
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from database import Base
+engine = create_engine('sqlite:///local.db')
+Base.metadata.bind = engine
+DBSession = sessionmaker(bind=engine)
+session = DBSession()
+
+project_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -13,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 TOKEN_FILE = 'private_keys/telegram.token'
 BASE_API_URL = 'https://api.exchangeratesapi.io'
+DECIMAL_KEY = 2
 
 
 def get_token(filename):
@@ -29,9 +41,17 @@ def get_token(filename):
 
 # Helper functions
 def get_latest_currency_api(url, code):
-    prefix_url = '/latest?base='+code
-    content = requests.get(url=url+prefix_url).json()
-    logger.debug('get latest currency from %s: %s', url, content)
+    '''
+    return from api row currency by code
+    :param url:
+    :param code:
+    :return type of dict:
+    '''
+    prefix_url = '/latest?base=' + code
+    content = requests.get(url=url + prefix_url).json()
+    # logger.info('get latest currency from {}'.format(content))
+    for key, value in content['rates'].items():
+        content['rates'][key] = round(value, DECIMAL_KEY)
     return content
 
 
@@ -49,8 +69,10 @@ def list(update, context):
     :return:
     '''
     currency = get_latest_currency_api(BASE_API_URL, 'USD')
-    if not currency:
-        update.message.reply_text("list got it")
+    if currency:
+        update.message.reply_text("Currency now:"
+                                  "{}".format(currency['rates']))
+
     else:
         update.message.reply_text("Service has some errors!")
     user = update.message.from_user
@@ -95,7 +117,19 @@ def error(update, context):
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 
+def test_list():
+    content = get_latest_currency_api(url=BASE_API_URL, code='CAD')
+    logger.info(content)
+    for key, value in content['rates'].items():
+        print(key, ':', value)
+    print('formatted currency {}'.format(content['rates']))
+
+
+
 # End telegram functions
+def test_main():
+    test_list()
+
 
 def main():
     # Create the Updater and pass it your bot's token.
@@ -126,4 +160,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    test_main()
