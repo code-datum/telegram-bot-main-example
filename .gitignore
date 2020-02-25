@@ -1,3 +1,11 @@
 private_keys/*
 venv/
 .\idea/
+
+__pycache__/
+
+temp/
+
+local\.db
+
+deltatime\.py

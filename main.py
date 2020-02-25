@@ -8,11 +8,7 @@ from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from database import Base
-engine = create_engine('sqlite:///local.db')
-Base.metadata.bind = engine
-DBSession = sessionmaker(bind=engine)
-session = DBSession()
+from model import *
 
 project_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -53,6 +49,9 @@ def get_latest_currency_api(url, code):
     for key, value in content['rates'].items():
         content['rates'][key] = round(value, DECIMAL_KEY)
     return content
+
+def get_local_currency():
+    pass
 
 
 # End helper functions
