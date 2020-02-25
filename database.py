@@ -1,6 +1,6 @@
 import os
 import sys
-from sqlalchemy import Column, ForeignKey, Integer, String, Float
+from sqlalchemy import Column, ForeignKey, Integer, String, Float, Time
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
@@ -10,10 +10,8 @@ Base = declarative_base()
 
 class Rates(Base):
     __tablename__ = 'rates'
-
     id = Column(Integer, primary_key=True)
-    code = Column(String(250), nullable=False)
-    value = Column(Float(2), nullable=True)
+    rates = Column(String(250), nullable=False)
 
 
 class Currencies(Base):
