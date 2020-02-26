@@ -5,6 +5,7 @@ import requests
 from telegram import (ReplyKeyboardMarkup, ReplyKeyboardRemove)
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
                           ConversationHandler)
+from urllib.parse import urlencode
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -43,12 +44,12 @@ def get_latest_currency_api(url, code):
     :param code:
     :return type of dict:
     '''
-    prefix_url = '/latest?base=' + code
-    content = requests.get(url=url + prefix_url).json()
+    content ={}
     # logger.info('get latest currency from {}'.format(content))
-    for key, value in content['rates'].items():
-        content['rates'][key] = round(value, DECIMAL_KEY)
+    # for key, value in content['rates'].items():
+    #     content['rates'][key] = round(value, DECIMAL_KEY)
     return content
+
 
 def get_local_currency():
     pass
@@ -117,17 +118,74 @@ def error(update, context):
 
 
 def test_list():
+    logger.info("test_list function is run")
     content = get_latest_currency_api(url=BASE_API_URL, code='CAD')
     logger.info(content)
     for key, value in content['rates'].items():
         print(key, ':', value)
     print('formatted currency {}'.format(content['rates']))
+    logger.info("test_list function is end")
 
+
+def test_exchange(value, from_currency, to_currency='USD'):
+    logger.info("test_exchange function is run")
+    content = get_latest_currency_api(url=BASE_API_URL, code=from_currency)
+    from_currency_unit = content['rates'][to_currency]
+
+    if type(value) is str:
+        split_value = value.split('$')
+        logger.info(split_value)
+        if len(split_value) == 2:
+            logger.info('{}'.format(float(split_value[0])))
+            converted_money = round(float(split_value[0]) * from_currency_unit, DECIMAL_KEY)
+        else:
+            converted_money = 0
+            logger.error('enter incorrect data')
+    elif type(value) is float or type(value) is int:
+        converted_money = round(value * from_currency_unit, DECIMAL_KEY)
+    else:
+        logger.error('enter incorrect data')
+        converted_money = 0
+    logger.info("converted currency: %s", converted_money)
+    logger.info("test_exchange function is run")
+
+
+def query_to_api(type_query, args):
+    if type_query == 'general':
+        prefix_url = '/latest?' + urlencode({'base': args['code']})
+        content = requests.get(url=BASE_API_URL + prefix_url).json()
+    elif type_query == 'history':
+        prefix_url = '/history?' + urlencode({'start_at': args['start_at'],
+                                              'end_at': args['end_at'],
+                                              'base': args['base'],
+                                              'symbols': args['symbols']
+                                              })
+        content = requests.get(url=BASE_API_URL + prefix_url).json()
+    logger.info("query_url's result:{}".format(content))
+    return content
+
+
+def test_history():
+    logger.info("test_history function is run")
+    # query_history = {'start_at': '2019-11-27',
+    #          'end_at': '2019-12-03',
+    #          'base': 'USD',
+    #          'symbols': 'CAD'
+    #          }
+    # query_general = {
+    #     'code':'USD'
+    # }
+    query_to_api('general', query_general)
+    pass
+    logger.info("test_history function is run")
 
 
 # End telegram functions
 def test_main():
-    test_list()
+    # test_list()
+    # TODO if value is x$ then auto choose converted type
+    # test_exchange('1.25$', 'CAD', 'USD')
+    test_history()
 
 
 def main():
