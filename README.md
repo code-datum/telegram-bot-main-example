@@ -19,3 +19,9 @@ install telegram bot package
 ```bash
 pip install -r requirements.txt
 ```
+## run app
+```bash
+python app.py
+#and debug mode (flask)
+python app.py debug=on
+```
