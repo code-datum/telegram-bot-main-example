@@ -1,9 +1,18 @@
 import os
-from bot.config import logger
+from bots.config import logger
+
+
 class Currency_exchange_bot_model():
-    def __init__(self, token_path):
+    currencies_type = 'currencies'
+    latest_type = 'latest'
+    round_index = 5
+
+    def __init__(self, token_path, url_api, round_index, currencies_url):
         # get token to connect with telegram api
         self.token = self.get_token(token_path)
+        self.url_api = url_api
+        self.round_index = round_index
+        self.currencies_url = currencies_url
 
     def get_token(self, filename):
 
@@ -20,20 +29,20 @@ class Currency_exchange_bot_model():
     def query_to_api(self, type_query, args):
         if type_query == 'general':
             prefix_url = '/latest?' + urlencode({'base': args['code']})
-            content = requests.get(url=BASE_API_URL + prefix_url).json()
+            content = requests.get(url=self.url_api + prefix_url).json()
         elif type_query == 'history':
             prefix_url = '/history?' + urlencode({'start_at': args['start_at'],
                                                   'end_at': args['end_at'],
                                                   'base': args['base'],
                                                   'symbols': args['symbols']
                                                   })
-            content = requests.get(url=BASE_API_URL + prefix_url).json()
+            content = requests.get(url=self.url_api + prefix_url).json()
         logger.info("query_url's result:{}".format(content))
         return content
 
     def exchange(value, from_currency, to_currency='USD'):
         logger.info("test_exchange function is run")
-        content = get_latest_currency_api(url=BASE_API_URL, code=from_currency)
+        content = get_latest_currency(code=from_currency)
         from_currency_unit = content['rates'][to_currency]
 
         if type(value) is str:
@@ -53,15 +62,17 @@ class Currency_exchange_bot_model():
         logger.info("converted currency: %s", converted_money)
         logger.info("test_exchange function is run")
 
-    def get_latest_currency_api(url, code):
+    def get_currency_title(self, code):
         '''
-        return from api row currency by code
-        :param url:
-        :param code:
-        :return type of dict:
+        Return by code currencies title
+        :return: string
         '''
-        content = {}
-        # logger.info('get latest currency from {}'.format(content))
-        # for key, value in content['rates'].items():
-        #     content['rates'][key] = round(value, DECIMAL_KEY)
-        return content
+        # https://openexchangerates.org/api/currencies.json
+        currencies_title = self.query_to_api('currencies', self.currencies_type)
+        if code in currencies_title:
+            return currencies_title[code]
+        else:
+            return None
+
+    def get_latest_currency(self, from_currency):
+        return self.query_to_api('latest', {'code': from_currency})

@@ -44,7 +44,7 @@ def get_latest_currency_api(url, code):
     :param code:
     :return type of dict:
     '''
-    content ={}
+    content = {}
     # logger.info('get latest currency from {}'.format(content))
     # for key, value in content['rates'].items():
     #     content['rates'][key] = round(value, DECIMAL_KEY)
