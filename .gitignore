@@ -9,3 +9,7 @@ temp/
 local\.db
 
 deltatime\.py
+
+pkg/
+
+\.token
