@@ -1,4 +1,5 @@
 from bots.config import *
+import click
 from bots.controller import Currency_exchange_bot as Bot
 import sys
 from flask import Flask, render_template, url_for, flash, redirect, g
@@ -64,16 +65,25 @@ if not app.debug:
     app.logger.addHandler(file_handler)
     app.logger.info('errors')
 
+
 # test exchange
+@click.command()
+@click.option('--debug', default=False, help='Debug mode to view data from model for using turn on "--debug=on"')
+def debug_cli(debug):
+
+    # app.run()
+    print(debug)
+    if debug == 'on':
+        click.echo("Debug mode is enabled...")
+        app.run()
+    else:
+        click.echo("Run telegram bot '{name}'...")
+        instance = Bot('.token')
+        instance.run()
 
 
 if __name__ == '__main__':
-
     '''
     enter there 
     '''
-
-    if sys.argv[1] == 'debug=on':
-        app.run()
-    else:
-        main()
+    debug_cli()
