@@ -1,6 +1,7 @@
 # the task https://docs.google.com/document/d/1_UNymiQ0otjI9RBeW7-pwDdgQUW_OveUlcet01zzIsM/edit?usp=sharing
 
 import os
+import sys
 import requests
 from telegram import (ReplyKeyboardMarkup, ReplyKeyboardRemove)
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
@@ -20,7 +21,7 @@ class Currency_exchange_bot(Model):
     # Helper functions
     # End helper functions
     # Telegram functions
-    def __init__(self, token_path, debug):
+    def __init__(self, token_path, debug=False):
         self.debug = debug
         super().__init__(token_path=token_path,
                          round_index=round_index,
@@ -80,7 +81,7 @@ class Currency_exchange_bot(Model):
             user = update.message.from_user
             logger.info("User %s start use 'history' command.", user.first_name)
         else:
-            #there is a flask view area
+            # there is a flask view area
             logger.info("Debug mode history started")
 
     def cancel(self, update, context):
@@ -122,5 +123,3 @@ class Currency_exchange_bot(Model):
             # SIGTERM or SIGABRT. This should be used most of the time, since
             # start_polling() is non-blocking and will stop the bot gracefully.
             updater.idle()
-
-

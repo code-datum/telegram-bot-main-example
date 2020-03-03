@@ -1,4 +1,3 @@
-from bots.config import *
 import click
 from bots.controller import Currency_exchange_bot as Bot
 import sys
@@ -7,8 +6,7 @@ import logging
 from logging import Formatter, FileHandler
 
 app = Flask(__name__)
-app.config.from_object('bots.config')
-debug = True
+app.config.from_object('config')
 
 
 @app.route('/')
@@ -22,7 +20,7 @@ def home():
 
 @app.route('/exchange')
 def exchange():
-    instance = Bot(token_path='.token', debug=debug)
+    instance = Bot(token_path='.token', debug=DEBUG)
     instance.exchange(update=None, context=None)
     return render_template('pages/exchange.html')
 
@@ -30,7 +28,7 @@ def exchange():
 # test list
 @app.route('/list')
 def list(update=None, context=None):
-    instance = Bot(token_path='.token', debug=debug)
+    instance = Bot(token_path='.token', debug=DEBUG)
     instance.list(update=None, context=None)
     return render_template('pages/list.html')
 
@@ -38,7 +36,7 @@ def list(update=None, context=None):
 # test history
 @app.route('/history')
 def history(update=None, context=None):
-    instance = Bot(token_path='.token', debug=debug)
+    instance = Bot(token_path='.token', debug=DEBUG)
     instance.history(update=None, context=None)
     return render_template('pages/history.html')
 

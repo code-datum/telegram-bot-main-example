@@ -1,5 +1,5 @@
 import os
-from bots.config import logger
+from bots.config import *
 
 
 class Currency_exchange_bot_model():
