@@ -1,6 +1,7 @@
 import os
 from bots.config import *
-
+from urllib.parse import urlencode
+import requests
 
 class Currency_exchange_bot_model():
     currencies_type = 'currencies'
@@ -27,6 +28,7 @@ class Currency_exchange_bot_model():
         return token
 
     def query_to_api(self, type_query, args):
+        content = {}
         if type_query == 'general':
             prefix_url = '/latest?' + urlencode({'base': args['code']})
             content = requests.get(url=self.url_api + prefix_url).json()
@@ -37,12 +39,12 @@ class Currency_exchange_bot_model():
                                                   'symbols': args['symbols']
                                                   })
             content = requests.get(url=self.url_api + prefix_url).json()
-        logger.info("query_url's result:{}".format(content))
+        logger.info("query_url's result:{} {}".format(content, type(content)))
         return content
 
     def exchange(value, from_currency, to_currency='USD'):
         logger.info("test_exchange function is run")
-        content = get_latest_currency(code=from_currency)
+        content = self.get_latest_currency(code=from_currency)
         from_currency_unit = content['rates'][to_currency]
 
         if type(value) is str:
@@ -75,4 +77,10 @@ class Currency_exchange_bot_model():
             return None
 
     def get_latest_currency(self, from_currency):
+        '''
+        Get from api the latest currency
+        :param from_currency:
+        :return:
+        '''
         return self.query_to_api('latest', {'code': from_currency})
+
