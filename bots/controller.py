@@ -12,7 +12,10 @@ from sqlalchemy.orm import sessionmaker
 from bots.config import *
 from bots.model import Currency_exchange_bot_model as Model
 
-from datetime import date
+logging.basicConfig(filename='debug.log', filemode='w', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.INFO)
+logger = logging.getLogger(__name__)
+import datetime as date
 
 
 class Currency_exchange_bot(Model):
@@ -76,13 +79,60 @@ class Currency_exchange_bot(Model):
         :param update:
         :param context:
         :return:
+        # prepare data to telegram api
         '''
+        # tday is today
+        tday = date.date.today()
+        # get tha last 7 days
+        differ_day = 7
+        tdelta = date.timedelta(days=differ_day)
+        differ_date = tday - tdelta
+        from_currency = "CAD"
+        converted_currency = "USD"
+        map = {
+            'start_at': differ_date,
+            'end_at': tday,
+            'base': converted_currency,
+            'symbols': from_currency
+        }
+        content = self.query_to_api('history', map)
+
+        # content = logger.info("history %s", content['rates'])
+
+        if 'rates' in content:
+            rates = content['rates']
+
+            rates_keys = [i for i in rates]
+            rates_values = [v[from_currency] for k, v in rates.items()]
+
+            logger.info("rates_key {}".format(rates_keys))
+            logger.info("rates_values {}".format(rates_values))
+        else:
+            logger.info("Content has not %s", content['rates'])
+        ## TODO make a picture from url
+        # telegram-bot api
         if update:
             user = update.message.from_user
+            chat_id = update.message.chat_id
             logger.info("User %s start use 'history' command.", user.first_name)
+            update.message.reply_text("The graph from {} to {}".format(differ_date, tday))
+            context.bot.send_photo(chat_id=chat_id, photo=open('bots/static/image/2020-03-03-17_45_23.png', 'rb'))
+            # bot.send_photo(chat_id, photo=self.get_url())
+        # a test block
         else:
-            # there is a flask view area
             logger.info("Debug mode history started")
+
+        return content
+
+    def get_url():
+        '''
+        get the image URL
+        :return string:
+        '''
+        contents = requests.get('https://random.dog/woof.json').json()
+        url = contents['url']
+        logging.debug("image_url%s %s ", url, 'get_url')
+        return url
 
     def cancel(self, update, context):
         user = update.message.from_user
@@ -123,3 +173,7 @@ class Currency_exchange_bot(Model):
             # SIGTERM or SIGABRT. This should be used most of the time, since
             # start_polling() is non-blocking and will stop the bot gracefully.
             updater.idle()
+
+    def test_run(self):
+        # run test mode
+        self.history(update=None, context=None)
