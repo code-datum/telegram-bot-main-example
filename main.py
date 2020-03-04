@@ -9,7 +9,7 @@ from urllib.parse import urlencode
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from model import *
+# from model import *
 
 project_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -172,9 +172,9 @@ def test_history():
     #          'base': 'USD',
     #          'symbols': 'CAD'
     #          }
-    # query_general = {
-    #     'code':'USD'
-    # }
+    query_general = {
+        'code':'USD'
+    }
     query_to_api('general', query_general)
     pass
     logger.info("test_history function is run")

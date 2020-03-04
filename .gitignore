@@ -13,3 +13,5 @@ deltatime\.py
 pkg/
 
 \.token
+
+bots/static/image/
